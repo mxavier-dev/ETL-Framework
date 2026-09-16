@@ -1,0 +1,10 @@
+id,name,age,email,phone,city
+1,Ana Silva,28,ana.silva@email.com,(11) 98765-4321,São Paulo
+2,Carlos Souza,trinta,carlos.souza@email.com,(21) 97654-3210,Rio de Janeiro
+3,Beatriz Santos,22,beatriz.santos.email.com,(31) 96543-2109,Belo Horizonte
+4,Diego Lima,-5,diego.lima@email.com,11954321098,Guarulhos
+5,Elena Pereira,45,elena.pereira@email.com,(41) 94321-0987,
+6,Fernando Costa,150,fernando@email.com,NÃO POSSUI,Curitiba
+7,Gabriela Rodrigues,34,gabi@email.com,(51) 93210-9876,Porto Alegre
+9,Hugo Almeida,,hugo@email.com,(81) 92109-8765,Recife
+10,"Julia Carvalho, Jr.",29,julia@email.com,(71) 91098-7654,Salvador

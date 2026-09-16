@@ -1,0 +1,11 @@
+from src.extractors.base import Extrator
+import csv
+
+class CSVExtractor(Extrator):
+    def extractor(self, path):
+        data = []
+        with open(path, 'r', encoding='utf-8') as arq:
+            reader = csv.DictReader(arq)
+            for line in reader:
+                data.append(line)
+        return data

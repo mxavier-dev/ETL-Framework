@@ -1,0 +1,20 @@
+{
+    "id": {
+        "type": "int"
+    },
+    "name": {
+        "type": "str"
+    },
+    "age": {
+        "type": "int"
+    },
+    "email": {
+        "type": "str"
+    },
+    "phone": {
+        "type": "str"
+    },
+    "city": {
+        "type": "str"
+    }
+}
