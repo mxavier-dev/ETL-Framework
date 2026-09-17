@@ -1,12 +1,12 @@
-from src.extractors.csv import CSVExtractor
-from src.transform.base import Transformer
-from src.loaders.csv import CSVLoader
+from src.extractors.CSVExtractor import CSVExtractor
+from src.transform.Transformer import Transformer
+from src.loaders.CSVLoader import CSVLoader
 from src.pipeline import Pipeline
 
 def main():
     # try:
 
-    csv_path = 'data/usuarios_erros.csv'
+    csv_path = 'usuarios_erros.csv'
     t_path = 'data'
     Pipeline(CSVExtractor(), Transformer(), CSVLoader(), csv_path, t_path).run()
 

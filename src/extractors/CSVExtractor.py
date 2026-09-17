@@ -1,4 +1,4 @@
-from src.extractors.base import Extrator
+from src.extractors.Extractor import Extrator
 import csv
 
 class CSVExtractor(Extrator):

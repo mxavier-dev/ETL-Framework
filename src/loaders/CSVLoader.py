@@ -1,10 +1,11 @@
-from src.loaders.base import Loader
+from src.loaders.Loader import Loader
 import csv
 
 class CSVLoader(Loader):
     def loader(self, data:list, path:str):
         if not data:
-            raise IndexError('The file has to be at least one valid data')
+            pass
+            # raise IndexError('The file has to be at least one valid data')
 
         if path.endswith('/'):
             path += f'data_transformed.csv'
