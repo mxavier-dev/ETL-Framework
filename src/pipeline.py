@@ -8,8 +8,8 @@ class Pipeline:
 
     def run(self):
         data = self.extract.extractor(self.source)
-        t = self.transform.transform(data)
-        self.load.loader(t, self.destination)
+        transformed = self.transform.transform(data)
+        self.load.loader(transformed, self.destination)
         print(f'Extract data: {len(data)}')
-        print(f'Loaded data: {len(t)}')
+        print(f'Loaded data: {len(transformed)}')
 

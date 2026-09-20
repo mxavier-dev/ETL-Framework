@@ -4,13 +4,12 @@ import csv
 class CSVLoader(Loader):
     def loader(self, data:list, path:str):
         if not data:
-            pass
-            # raise IndexError('The file has to be at least one valid data')
+            raise ValueError('The file has to be at least one valid data')
 
         if path.endswith('/'):
-            path += f'data_transformed.csv'
+            path += 'data_transformed.csv'
         else:
-            path += f'/data_transformed.csv'
+            path += '/data_transformed.csv'
 
         keys = list(data[0].keys())
         with open(path, 'w', encoding='utf-8', newline='') as arq:

@@ -1,5 +1,3 @@
-import json
-
 def validate_type(value, type_str:str) -> bool:
     type_map = {
         "int": int,
@@ -14,7 +12,11 @@ def validate_type(value, type_str:str) -> bool:
 
     python_type = type_map.get(type_str.lower())
 
-    if not python_type:
+    if python_type is None:
         raise ValueError(f'Type "{type_str}" is not supported')
 
-    return isinstance(value, python_type)
+    try:
+        python_type(value)
+        return True
+    except (ValueError, TypeError):
+        return False
