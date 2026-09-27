@@ -3,18 +3,30 @@
         "type": "int"
     },
     "name": {
-        "type": "str"
+        "type": "str",
+        "transform": "clean_name",
+        "clean": true
     },
     "age": {
-        "type": "int"
+        "type": "int",
+        "min": 0,
+        "max": 120
     },
     "email": {
-        "type": "str"
+        "type": "str",
+        "contains": "@"
     },
     "phone": {
-        "type": "str"
+        "type": "str",
+        "transform": "clean_phone",
+        "clean": true
     },
     "city": {
+        "source": "city",
+        "type": "str"
+    },
+    "company": {
+        "source": "company.name",
         "type": "str"
     }
 }

@@ -1,58 +1,59 @@
+from src.transform.validator import convert_value
+from src.transform.cleaner import remove_duplicates, transformations
 import json
-from src.transform.validator import validate_type
-from src.transform.cleaner import remove_duplicates
 
+def get_nested_value(data, path):
+        value = data
+
+        for key in path.split('.'):
+            if not isinstance(value, dict):
+                return None
+
+            value = value.get(key)
+
+            if value is None:
+                return None
+
+        return value
 
 class Transformer:
     def transform(self, lst):
         with open('schemas/user.json', 'r', encoding='utf-8') as arq:
             schema = json.load(arq)
-            keys = list(schema.keys())
 
-        lst_no_repeat = remove_duplicates(lst)
+        new_lst = []
 
-        for line in lst_no_repeat:
-            for key in keys:
-                match key:
-                    case 'id':
-                        if validate_type(line.get('id'), schema.get('id')['type']):
-                            line['id'] = int(line['id'])
-                        else:
-                            line['id'] = None
+        for line in lst:
+            transformed_line = {}
+            for field, config in schema.items():
+                source = config.get('source', field)
+                value_type = config['type']
+                value = convert_value(get_nested_value(line, source), value_type)
 
-                    case 'name':
-                        if validate_type(line.get('name'), schema.get('name')['type']):
-                            reject_caracters = '",.-_*\'+#!@~^()[]?|;:'
-                            for carac in reject_caracters:
-                                line['name'] = line['name'].replace(carac, '')
+                if value is None:
+                    transformed_line[field] = None
+                    continue
 
-                    case 'age':
-                        if validate_type(line.get('age'), schema.get('age')['type']):
-                            line['age'] = int(line['age'])
-                            if not (0 <= line['age'] <= 120):
-                                line['age'] = None
-                        else:
-                            line['age'] = None
+                if 'min' in config and value < config['min']:
+                    transformed_line[field] = None
+                elif 'max' in config and value > config['max']:
+                    transformed_line[field] = None
+                else:
+                    transformed_line[field] = value
+
+                if config.get('clean'):
+                    transform = transformations.get(config.get('transform'))
+                    if transform is None:
+                        raise ValueError(f'Transformation "{config["transform"]}" is not supported')
+                    transformed_line[field] = transform(value)
+
+                if 'contains' in config:
+                    if config.get('contains') in value:
+                        transformed_line[field] = value
+                    else:
+                        transformed_line[field] = None
 
 
-                    case 'email':
-                        if validate_type(line.get('email'), schema.get('email')['type']):
-                            if not any(i == "@" for i in line.get('email')):
-                                line['email'] = None
+            new_lst.append(transformed_line)
 
-                    case 'phone':
-                        if validate_type(line.get('phone'), schema.get('phone')['type']):
-                            if not any(i.isdigit() for i in line['phone']):
-                                line['phone'] = None
-                            else:
-                                reject_caracters = '"([\{\}])/*-+.,:; '
-                                for carac in reject_caracters:
-                                    line['phone'] = line['phone'].replace(carac, '')
-
-                    case 'city':
-                        if not validate_type(line['city'], schema.get('city')['type']):
-                            line['city'] = None
-                    case _:
-                        continue
-
-        return lst_no_repeat
+        return remove_duplicates(new_lst)
