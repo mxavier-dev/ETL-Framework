@@ -1,11 +1,14 @@
-def validate_type(value, type_str:str) -> bool:
+def convert_value(value, type_str:str) -> bool:
+    if value is None:
+        return None
+
     type_map = {
         "int": int,
         "string": str,
         "str": str,
         "float": float,
-        "bool": bool,
-        "boolean": bool,
+        # "bool": bool,
+        # "boolean": bool,
         "list": list,
         "dict": dict
     }
@@ -16,7 +19,6 @@ def validate_type(value, type_str:str) -> bool:
         raise ValueError(f'Type "{type_str}" is not supported')
 
     try:
-        python_type(value)
-        return True
+        return python_type(value)
     except (ValueError, TypeError):
-        return False
+        return None
