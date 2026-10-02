@@ -7,8 +7,6 @@ def convert_value(value, type_str:str) -> bool:
         "string": str,
         "str": str,
         "float": float,
-        # "bool": bool,
-        # "boolean": bool,
         "list": list,
         "dict": dict
     }

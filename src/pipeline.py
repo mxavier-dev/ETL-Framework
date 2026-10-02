@@ -1,15 +1,24 @@
+from src.config.load_json import load_json
+from src.factories.extractor_factory import create_extractor
+from src.factories.loader_factory import create_loader
+from src.transform.Transformer import Transformer
+
 class Pipeline:
-    def __init__(self, extractor, transformer, loader, source, destination):
-        self.extract = extractor
-        self.transform = transformer
-        self.load = loader
-        self.source = source
-        self.destination = destination
+    def __init__(self, config):
+        config = load_json(config)
+
+        self.schema = load_json(f'schemas/{config["schema"]}.json')
+        self.extractor = create_extractor(config['extractor'])
+        self.source = config['source']
+        self.loader = create_loader(config['loader'])
+        self.destination = config['destination']
+        self.transformer = Transformer()
 
     def run(self):
-        data = self.extract.extractor(self.source)
-        transformed = self.transform.transform(data)
-        self.load.loader(transformed, self.destination)
+        data = self.extractor.extract(self.source)
+        transformed = self.transformer.transform(data, self.schema)
+        self.loader.load(transformed, self.destination, self.schema)
+        
         print(f'Extract data: {len(data)}')
         print(f'Loaded data: {len(transformed)}')
 

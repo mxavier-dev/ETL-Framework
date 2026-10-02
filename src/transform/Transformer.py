@@ -1,6 +1,5 @@
 from src.transform.validator import convert_value
 from src.transform.cleaner import remove_duplicates, transformations
-import json
 
 def get_nested_value(data, path):
         value = data
@@ -13,17 +12,13 @@ def get_nested_value(data, path):
 
             if value is None:
                 return None
-
         return value
 
 class Transformer:
-    def transform(self, lst):
-        with open('schemas/user.json', 'r', encoding='utf-8') as arq:
-            schema = json.load(arq)
-
+    def transform(self, data, schema):
         new_lst = []
 
-        for line in lst:
+        for line in data:
             transformed_line = {}
             for field, config in schema.items():
                 source = config.get('source', field)
