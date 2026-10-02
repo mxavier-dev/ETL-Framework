@@ -22,7 +22,7 @@
         "clean": true
     },
     "city": {
-        "source": "city",
+        "source": "address.city",
         "type": "str"
     },
     "company": {
