@@ -1,7 +1,7 @@
 from src.transform.validator import convert_value
-from src.transform.cleaner import remove_duplicates, transformations
+from src.transform.cleaner import remove_duplicates, TRANSFORMATIONS
 
-def get_nested_value(data, path):
+def get_nested_value(data, path) -> str | None:
         value = data
 
         for key in path.split('.'):
@@ -15,7 +15,7 @@ def get_nested_value(data, path):
         return value
 
 class Transformer:
-    def transform(self, data, schema):
+    def transform(self, data, schema: dict) -> list[dict]:
         new_lst = []
 
         for line in data:
@@ -29,24 +29,27 @@ class Transformer:
                     transformed_line[field] = None
                     continue
 
-                if 'min' in config and value < config['min']:
-                    transformed_line[field] = None
-                elif 'max' in config and value > config['max']:
-                    transformed_line[field] = None
+                if value_type in ["int", "float"]:
+                    if 'min' in config and value < config['min']:
+                        transformed_line[field] = None
+                    elif 'max' in config and value > config['max']:
+                        transformed_line[field] = None
+                    else:
+                        transformed_line[field] = value
                 else:
                     transformed_line[field] = value
 
-                if config.get('clean'):
-                    transform = transformations.get(config.get('transform'))
-                    if transform is None:
-                        raise ValueError(f'Transformation "{config["transform"]}" is not supported')
-                    transformed_line[field] = transform(value)
+                    if config.get('clean'):
+                        transform = TRANSFORMATIONS.get(config.get('transform'))
+                        if transform is None:
+                            raise ValueError(f'Transformation "{config["transform"]}" is not supported')
+                        transformed_line[field] = transform(value)
 
-                if 'contains' in config:
-                    if config.get('contains') in value:
-                        transformed_line[field] = value
-                    else:
-                        transformed_line[field] = None
+                    if 'contains' in config:
+                        if config.get('contains') in value:
+                            transformed_line[field] = value
+                        else:
+                            transformed_line[field] = None
 
 
             new_lst.append(transformed_line)

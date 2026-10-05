@@ -1,17 +1,18 @@
-def convert_value(value, type_str:str) -> bool:
+SUPPORTED_TYPES = {
+    "int": int,
+    "string": str,
+    "str": str,
+    "float": float,
+    "list": list,
+    "dict": dict
+}
+
+def convert_value(value, type_str:str):
     if value is None:
         return None
 
-    type_map = {
-        "int": int,
-        "string": str,
-        "str": str,
-        "float": float,
-        "list": list,
-        "dict": dict
-    }
 
-    python_type = type_map.get(type_str.lower())
+    python_type = SUPPORTED_TYPES.get(type_str.lower())
 
     if python_type is None:
         raise ValueError(f'Type "{type_str}" is not supported')

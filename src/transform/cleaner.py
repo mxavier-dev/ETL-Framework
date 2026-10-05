@@ -24,7 +24,7 @@ def clean_name(data):
       data = data.replace(carac, '')
     return data
 
-transformations = {
+TRANSFORMATIONS = {
    'clean_name': clean_name,
    'clean_phone': clean_phone
 }

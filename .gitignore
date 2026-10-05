@@ -13,6 +13,7 @@ __pycache__/
 config/*
 !config/.gitkeep
 data/*
+*.json
 *.csv
 !data/.gitkeep
 
