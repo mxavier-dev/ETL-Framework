@@ -1,9 +1,8 @@
 from src.loaders.Loader import Loader
 import csv
-import json
 
 class CSVLoader(Loader):
-    def load(self, data:list, path:str, schema):
+    def load(self, data:list, path:str, schema:dict):
         if not data:
             raise ValueError('The file has to be at least one valid data')
 

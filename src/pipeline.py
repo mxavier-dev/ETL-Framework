@@ -1,4 +1,6 @@
 from src.config.load_json import load_json
+from src.config.config_validator import validate_config
+from src.config.schema_validator import validate_schema
 from src.factories.extractor_factory import create_extractor
 from src.factories.loader_factory import create_loader
 from src.transform.Transformer import Transformer
@@ -6,8 +8,11 @@ from src.transform.Transformer import Transformer
 class Pipeline:
     def __init__(self, config):
         config = load_json(config)
+        validate_config(config)
 
         self.schema = load_json(f'schemas/{config["schema"]}.json')
+        validate_schema(self.schema)
+
         self.extractor = create_extractor(config['extractor'])
         self.source = config['source']
         self.loader = create_loader(config['loader'])
@@ -18,7 +23,7 @@ class Pipeline:
         data = self.extractor.extract(self.source)
         transformed = self.transformer.transform(data, self.schema)
         self.loader.load(transformed, self.destination, self.schema)
-        
+
         print(f'Extract data: {len(data)}')
         print(f'Loaded data: {len(transformed)}')
 
