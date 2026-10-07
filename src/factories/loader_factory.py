@@ -1,7 +1,9 @@
 from src.loaders.CSVLoader import CSVLoader
+from src.loaders.SQLiteLoader import SQLiteLoader
 
 LOADERS = {
-    "csv": CSVLoader
+    "csv": CSVLoader,
+    'sqlite': SQLiteLoader
 }
 
 def create_loader(loader_type):

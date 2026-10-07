@@ -21,6 +21,11 @@ def validate_config(config):
             raise ValueError(
                 f'The configuration field "{field}" cannot be empty'
             )
+    if config['loader'] == 'sqlite':
+        if not config.get('table'):
+            raise ValueError(
+                f'For SQLite loader the "table" field is necessary'
+            )
 
     if config['extractor'] not in EXTRACTORS:
         raise ValueError(
