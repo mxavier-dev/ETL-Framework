@@ -42,7 +42,9 @@ class Transformer:
                     if config.get('clean'):
                         transform = TRANSFORMATIONS.get(config.get('transform'))
                         if transform is None:
-                            raise ValueError(f'Transformation "{config["transform"]}" is not supported')
+                            raise ValueError(
+                                f'Transformation "{config["transform"]}" is not supported'
+                            )
                         transformed_line[field] = transform(value)
 
                     if 'contains' in config:

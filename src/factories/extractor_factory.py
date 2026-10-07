@@ -1,9 +1,11 @@
 from src.extractors.APIExtractor import APIExtractor
 from src.extractors.CSVExtractor import CSVExtractor
+from src.extractors.JSONExtractor import JSONExtractor
 
 EXTRACTORS = {
     "csv": CSVExtractor,
-    "api": APIExtractor
+    "api": APIExtractor,
+    "json": JSONExtractor
 }
 
 def create_extractor(extractor_type):
