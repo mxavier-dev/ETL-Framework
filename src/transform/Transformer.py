@@ -1,7 +1,7 @@
 from src.transform.validator import convert_value
 from src.transform.cleaner import remove_duplicates, TRANSFORMATIONS
 
-def get_nested_value(data, path) -> str | None:
+def get_nested_value(data: dict, path: str) -> str | None:
         value = data
 
         for key in path.split('.'):
@@ -12,12 +12,18 @@ def get_nested_value(data, path) -> str | None:
 
             if value is None:
                 return None
+            
         return value
 
 class Transformer:
-    def transform(self, data, schema: dict) -> list[dict]:
-        new_lst = []
+    def transform(
+            self,
+            data: list[dict],
+            schema: dict,
+            remove_duplicate: bool | None = None
+    ) -> list[dict]:
 
+        new_lst = []
         for line in data:
             transformed_line = {}
             for field, config in schema.items():
@@ -56,4 +62,7 @@ class Transformer:
 
             new_lst.append(transformed_line)
 
-        return remove_duplicates(new_lst)
+        if remove_duplicate is False:
+            return new_lst
+        else:
+            return remove_duplicates(new_lst)
