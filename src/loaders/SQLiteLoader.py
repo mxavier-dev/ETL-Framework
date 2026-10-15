@@ -18,9 +18,9 @@ class SQLiteLoader(Loader):
         return ', '.join(columns)
 
     def load(self, data, database, schema):
-        destination = database[0]
+        destination = database[0] if database[0].endswith('/') else f'{database[0]}/'
         table = database[1]
-        conn = sqlite3.connect(destination)
+        conn = sqlite3.connect(f'{destination}data_transformed.db')
         cursor = conn.cursor()
 
         column_and_type = self.dynamic_table(schema)

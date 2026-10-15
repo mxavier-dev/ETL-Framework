@@ -7,11 +7,14 @@ CONFIG_FIELDS = [
     "source",
     "schema",
     "loader",
-    "destination"
+    "destination",
+    "remove_duplicates"
 ]
 
 def validate_config(config):
     for field in CONFIG_FIELDS:
+        if field == 'remove_duplicates':
+            continue
         if field not in config:
             raise ValueError(
                 f'The configuration file is missing field "{field}"'
@@ -21,6 +24,7 @@ def validate_config(config):
             raise ValueError(
                 f'The configuration field "{field}" cannot be empty'
             )
+        
     if config['loader'] == 'sqlite':
         if not config.get('table'):
             raise ValueError(
@@ -41,3 +45,9 @@ def validate_config(config):
         raise FileNotFoundError(
             f'Schema "{config["schema"]}" not found'
         )
+
+    if config.get('remove_duplicates'):
+        if not isinstance(config['remove_duplicates'], bool):
+            raise ValueError(
+                f'The configuration field "{field}" has to be boolean (true or false)'
+            )

@@ -7,8 +7,7 @@ from src.transform.Transformer import Transformer
 from utils.logger import logger
 
 class Pipeline:
-    def __init__(self, config):
-        try:
+    def __init__(self, config: str):
 
             config = load_json(config)
             validate_config(config)
@@ -23,14 +22,10 @@ class Pipeline:
                                 if not config.get('table')
                                 else (config['destination'], config['table']))
             self.transformer = Transformer()
-
-        except Exception:
-            logger.exception('Failed to initialize pipeline')
-            raise
+            self.remove_duplicates = config.get('remove_duplicates')
 
 
     def run(self):
-        try:
 
             logger.info('Pipeline started')
             logger.info(f'Extracting data from "{self.source}"')
@@ -39,14 +34,10 @@ class Pipeline:
             logger.info(f'Extracted {len(data)} records')
 
             logger.info('Transforming data')
-            transformed = self.transformer.transform(data, self.schema)
+            transformed = self.transformer.transform(data, self.schema, self.remove_duplicates)
 
             logger.info(f'Loading data into "{self.destination}"')
             self.loader.load(transformed, self.destination, self.schema)
 
             logger.info(f'Loaded {len(transformed)} records')
             logger.info('Pipeline finished')
-
-        except Exception:
-            logger.exception('Pipeline failed')
-            raise
