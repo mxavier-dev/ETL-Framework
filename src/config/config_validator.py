@@ -7,14 +7,11 @@ CONFIG_FIELDS = [
     "source",
     "schema",
     "loader",
-    "destination",
-    "remove_duplicates"
+    "destination"
 ]
 
 def validate_config(config):
     for field in CONFIG_FIELDS:
-        if field == 'remove_duplicates':
-            continue
         if field not in config:
             raise ValueError(
                 f'The configuration file is missing field "{field}"'
@@ -24,11 +21,16 @@ def validate_config(config):
             raise ValueError(
                 f'The configuration field "{field}" cannot be empty'
             )
-        
+
     if config['loader'] == 'sqlite':
         if not config.get('table'):
             raise ValueError(
                 f'For SQLite loader the "table" field is necessary'
+            )
+
+        if not isinstance(config['table'], str):
+            raise ValueError(
+                f"The table field has to be a string"
             )
 
     if config['extractor'] not in EXTRACTORS:
@@ -41,13 +43,14 @@ def validate_config(config):
             f'Unsupported loader "{config["loader"]}"'
         )
 
+    if 'remove_duplicates' in config:
+        if not isinstance(config['remove_duplicates'], bool):
+            raise ValueError(
+                f'The configuration field "remove_duplicates" has to be boolean (true or false)'
+            )
+
     if not os.path.exists(f'schemas/{config["schema"]}.json'):
         raise FileNotFoundError(
             f'Schema "{config["schema"]}" not found'
         )
 
-    if config.get('remove_duplicates'):
-        if not isinstance(config['remove_duplicates'], bool):
-            raise ValueError(
-                f'The configuration field "{field}" has to be boolean (true or false)'
-            )

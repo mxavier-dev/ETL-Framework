@@ -1,5 +1,6 @@
-from src.transform.Transformer import Transformer
 import pytest
+
+from src.transform.Transformer import Transformer
 
 def test_valid_data_to_type_int():
     data = [{"age": '20'}]
@@ -42,15 +43,21 @@ def test_invalid_data_float_to_none():
     transformed_data = Transformer().transform(data, schema)
     assert transformed_data[0]['price'] is None
 
-@pytest.mark.parametrize('value', ['false', 'False', 'True', 'true'])
-def test_valid_data_to_type_bool(value):
+@pytest.mark.parametrize('value, expected',
+                         [
+                             ('false', False),
+                             ('False', False),
+                             ('True', True),
+                             ('true', True),
+                         ])
+def test_valid_data_to_type_bool(value, expected):
     data = [{'activate': value}]
     schema = {'activate': {
         'type': 'bool'
     }}
 
     transformed_data = Transformer().transform(data, schema)
-    assert isinstance(transformed_data[0]['activate'], bool)
+    assert transformed_data[0]['activate'] is expected
 
 @pytest.mark.parametrize('value', ['falses', 'trues', 'abc', 24])
 def test_invalid_data_bool_to_none(value):
@@ -205,16 +212,15 @@ def test_remove_duplicates_data_int_types():
     transformed_data = Transformer().transform(data, schema)
     assert len(transformed_data) == 2
 
-
-def test_remove_duplicates_data_float_types():
+def test_remove_duplicates_data_string_types():
     data = [
-        {'data1': 1.2},
-        {'data1': 1.2},
-        {'data1': 2.2}
+        {'data1': 'string'},
+        {'data1': 'strings'},
+        {'data1': 'string'}
     ]
     schema = {
         'data1': {
-            'type': 'float'
+            'type': 'str'
         }
     }
 
@@ -251,25 +257,10 @@ def test_remove_duplicates_data_dict_type():
     transformed_data = Transformer().transform(data, schema)
     assert len(transformed_data) == 2
 
-def test_remove_duplicates_data_tuple_type():
-    data = [
-        {'data1': (3,2,1)},
-        {'data1': (1,2,3)},
-        {'data1': (1,2,3)}
-    ]
-    schema = {
-        'data1': {
-            'type': 'tuple'
-        }
-    }
-
-    transformed_data = Transformer().transform(data, schema)
-    assert len(transformed_data) == 2
-
-@pytest.mark.parametrize('id,name,age',
-                         ((5,'j',25),
-                          ('abc', 25, 'five')))
-def test_quantity_data_preservation_even_in_invalid_data(id,name,age):
+@pytest.mark.parametrize('id,name,age, expected',
+                         ((5,'j',25, (5,'j', 25)),
+                          ('abc', 25, 'five', (None, '25', None))))
+def test_quantity_data_preservation_even_in_invalid_data(id,name,age, expected):
     data = [
         {
         'id': id,
@@ -291,6 +282,7 @@ def test_quantity_data_preservation_even_in_invalid_data(id,name,age):
 
     transformed_data = Transformer().transform(data, schema)
     assert len(transformed_data[0]) == 3
+    assert tuple(transformed_data[0].values()) == expected
 
 def test_data_preservation():
     data = [
@@ -391,7 +383,7 @@ def test_remove_duplicates_is_true():
     transformed_data = Transformer().transform(data, schema, remove_duplicate=True)
     assert len(transformed_data) == 2
 
-def test_remove_duplicates_is_false_or_none():
+def test_remove_duplicates_is_false():
     data = [
         {'id': 1},
         {'id': 1},
@@ -405,3 +397,120 @@ def test_remove_duplicates_is_false_or_none():
 
     transformed_data = Transformer().transform(data, schema, remove_duplicate=False)
     assert len(transformed_data) == 3
+
+def test_remove_duplicates_by_default():
+    data = [
+        {'id': 1},
+        {'id': 1},
+        {'id': 2}
+    ]
+    schema = {
+        'id': {
+            'type': 'int'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert len(transformed_data) == 2
+
+def test_clean_true_valid_transform_clean_name():
+    data = [
+        {
+            'name': 'Jo@a.,h'
+        }
+    ]
+    schema = {
+        'name': {
+            'type': 'str',
+            'clean': True,
+            'transform': 'clean_name'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['name'] == 'Joah'
+
+def test_clean_true_valid_transform_clean_phone():
+    data = [
+        {
+            'phone': '11 9999-@%$@!$9999;.,'
+        }
+    ]
+    schema = {
+        'phone': {
+            'type': 'str',
+            'clean': True,
+            'transform': 'clean_phone'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['phone'] == '11 99999999'
+
+def test_valid_data_with_contains_field_return_data():
+    data = [
+        {
+            'email': 'email@email.com'
+        }
+    ]
+    schema = {
+        'email': {
+            'type': 'str',
+            'contains': '@'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['email'] == 'email@email.com'
+
+def test_invalid_data_with_contains_field_return_none():
+    data = [
+        {
+            'email': 'email.email.com'
+        }
+    ]
+    schema = {
+        'email': {
+            'type': 'str',
+            'contains': '@'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['email'] is None
+
+def test_clean_transform_with_contains_field_return_clean_data():
+    data = [
+        {
+            'name': 'M@at$$h.,'
+        }
+    ]
+    schema = {
+        'name': {
+            'type': 'str',
+            'clean': True,
+            'transform': 'clean_name',
+            'contains': 'M'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['name'] == 'Math'
+
+def test_clean_transform_with_contains_field_return_none():
+    data = [
+        {
+            'name': 'M@at$$h.,'
+        }
+    ]
+    schema = {
+        'name': {
+            'type': 'str',
+            'clean': True,
+            'transform': 'clean_name',
+            'contains': '@'
+        }
+    }
+
+    transformed_data = Transformer().transform(data, schema)
+    assert transformed_data[0]['name'] is None

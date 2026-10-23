@@ -47,7 +47,7 @@ def validate_schema(schema):
                 f'Field "{key}": "transform" requires "clean": true'
             )
 
-        if values.get('transform') is not None and values.get('transform') not in TRANSFORMATIONS:
+        if not values.get('transform') is None and values.get('transform') not in TRANSFORMATIONS:
             raise ValueError(
                 f'Field "{key}": unsupported transform "{values.get("transform")}"'
             )
@@ -72,14 +72,19 @@ def validate_schema(schema):
                     f'Field "{key}": the "max" field has to be greater than "min" field'
                 )
 
+        if 'contains' in values and not values['type'] in ['str', 'string']:
+            raise ValueError(
+                f'Field "{key}": "contains" is only supported for string fields'
+            )
+
         if 'contains' in values and not isinstance(values['contains'], str):
             raise ValueError(
                 f'Field "{key}": "contains" has to be a string'
             )
 
-        if values['type'] == 'str':
+        if values['type'] in ['str', 'string']:
             for field in values:
                 if field in ['min', 'max']:
                     raise ValueError(
-                        f'Field "{key}": unsupported field ("{field}") for "{values["type"]}" data'
+                        f'Field "{key}": unsupported field ("{field}") for string data'
                     )
