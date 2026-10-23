@@ -1,7 +1,7 @@
 from src.transform.validator import convert_value
 from src.transform.cleaner import remove_duplicates, TRANSFORMATIONS
 
-def get_nested_value(data: dict, path: str) -> str | None:
+def get_nested_value(data: dict, path: str) -> object | None:
         value = data
 
         for key in path.split('.'):
@@ -12,7 +12,7 @@ def get_nested_value(data: dict, path: str) -> str | None:
 
             if value is None:
                 return None
-            
+
         return value
 
 class Transformer:
@@ -46,19 +46,12 @@ class Transformer:
                     transformed_line[field] = value
 
                     if config.get('clean'):
-                        transform = TRANSFORMATIONS.get(config.get('transform'))
-                        if transform is None:
-                            raise ValueError(
-                                f'Transformation "{config["transform"]}" is not supported'
-                            )
+                        transform = TRANSFORMATIONS.get(config['transform'])
                         transformed_line[field] = transform(value)
 
                     if 'contains' in config:
-                        if config.get('contains') in value:
-                            transformed_line[field] = value
-                        else:
+                        if not config.get('contains') in transformed_line[field]:
                             transformed_line[field] = None
-
 
             new_lst.append(transformed_line)
 
