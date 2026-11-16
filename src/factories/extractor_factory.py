@@ -8,7 +8,7 @@ EXTRACTORS = {
     "json": JSONExtractor
 }
 
-def create_extractor(extractor_type):
+def create_extractor(extractor_type) -> object:
     extractor = EXTRACTORS.get(extractor_type)
 
     if extractor is None:

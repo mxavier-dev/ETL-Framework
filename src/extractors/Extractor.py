@@ -2,5 +2,5 @@ from abc import ABC, abstractmethod
 
 class Extrator(ABC):
     @abstractmethod
-    def extract(self, source):
+    def extract(self, source) -> list[dict]:
         pass

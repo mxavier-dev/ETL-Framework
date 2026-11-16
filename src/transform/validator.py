@@ -14,7 +14,6 @@ def convert_value(value, type_str:str):
     if value is None:
         return None
 
-
     python_type = SUPPORTED_TYPES.get(type_str.lower())
 
     if python_type is None:

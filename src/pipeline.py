@@ -15,12 +15,12 @@ class Pipeline:
             self.schema = load_json(f'schemas/{config["schema"]}.json')
             validate_schema(self.schema)
 
-            self.extractor = create_extractor(config['extractor'])
+            self.extractor = create_extractor(config['extractor'].lower())
             self.source = config['source']
-            self.loader = create_loader(config['loader'])
-            self.destination = (config['destination']
-                                if not config.get('table')
-                                else (config['destination'], config['table']))
+            self.loader = create_loader(config['loader'].lower())
+            self.destination = config['destination']
+            self.write_mode = config['write_mode'].lower()
+
             self.transformer = Transformer()
             self.remove_duplicates = config.get('remove_duplicates')
 
@@ -36,8 +36,8 @@ class Pipeline:
             logger.info('Transforming data')
             transformed = self.transformer.transform(data, self.schema, self.remove_duplicates)
 
-            logger.info(f'Loading data into "{self.destination}"')
-            self.loader.load(transformed, self.destination, self.schema)
+            logger.info(f'Loading data into "{self.destination["path"]}"')
+            self.loader.load(transformed, self.destination, self.schema, self.write_mode)
 
             logger.info(f'Loaded {len(transformed)} records')
             logger.info('Pipeline finished')
