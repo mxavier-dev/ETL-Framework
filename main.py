@@ -3,7 +3,7 @@ from utils.logger import logger
 
 def main():
     try:
-        Pipeline('config/file.json')
+        Pipeline('config/file.json').run()
     except Exception:
         logger.exception('ETL execution failed')
 

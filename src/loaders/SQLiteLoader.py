@@ -1,5 +1,7 @@
-from src.loaders.Loader import Loader
 import sqlite3
+from pathlib import Path
+
+from src.loaders.Loader import Loader
 
 SQL_TYPES = {
     "str": "TEXT",
@@ -17,25 +19,38 @@ class SQLiteLoader(Loader):
 
         return ', '.join(columns)
 
-    def load(self, data, database, schema):
-        destination = database[0] if database[0].endswith('/') else f'{database[0]}/'
-        table = database[1]
-        conn = sqlite3.connect(f'{destination}data_transformed.db')
-        cursor = conn.cursor()
+    def load(self, data, destination, schema, write_mode):
+        path = destination['path']
+        table_name = destination['table']
 
-        column_and_type = self.dynamic_table(schema)
-        query = f'CREATE TABLE IF NOT EXISTS {table} ({column_and_type})'
-        cursor.execute(query)
-        conn.commit()
+        if not Path(path).is_dir():
+            raise ValueError(
+                f'The path "{path}" is not a directory'
+            )
 
-        columns = ', '.join(schema.keys())
-        placeholders = ", ".join(['?']*len(schema))
-        query = f'INSERT INTO {table} ({columns}) VALUES ({placeholders})'
+        with sqlite3.connect(f'{path}/data_transformed.db') as conn:
+            cursor = conn.cursor()
 
-        for line in data:
-            values = [line[field] for field in schema]
-            cursor.execute(query, values)
+            column_and_type = self.dynamic_table(schema)
+            query = f'CREATE TABLE IF NOT EXISTS {table_name} ({column_and_type})'
+            cursor.execute(query)
+            columns = ', '.join([*schema])
+            placeholders = ", ".join(['?']*len(schema))
 
-        conn.commit()
-        conn.close()
+            match write_mode:
+                case 'append':
+                    query = f'INSERT INTO {table_name} ({columns}) VALUES ({placeholders})'
+                case 'overwrite':
+                    cursor.execute(f'DELETE FROM {table_name}')
+                    query = f'INSERT INTO {table_name} ({columns}) VALUES ({placeholders})'
+                case 'upsert':
+                    query = f'''
+                        INSERT INTO {table_name} ({columns}) VALUES ({placeholders})
+                        ON CONFLICT(id) DO UPDATE SET
 
+                        '''
+
+
+            for line in data:
+                values = [line[field] for field in schema]
+                cursor.execute(query, values)

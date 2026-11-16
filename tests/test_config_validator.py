@@ -18,17 +18,20 @@ def valid_config(tmp_path, monkeypatch):
 
     config = {
         "extractor": "csv",
-        "source": "data/example.csv",
+        "source": "schemas/example.csv",
         "schema": "example",
         "loader": "csv",
-        "destination": "data"
+        "destination": {
+            "path": "data"
+        },
+        "write_mode": "append"
 
     }
     return config
 
 @pytest.mark.parametrize('field',
                          ('extractor', 'source', 'schema',
-                          'loader', 'destination'))
+                          'loader', 'destination', 'write_mode'))
 def test_missing_required_field(valid_config, field):
     config = valid_config
     config.pop(field)
@@ -39,7 +42,7 @@ def test_missing_required_field(valid_config, field):
 @pytest.mark.parametrize('data', (None, '', 0, False))
 @pytest.mark.parametrize('field',
                          ('extractor', 'source', 'schema',
-                          'loader', 'destination'))
+                          'loader', 'destination', 'write_mode'))
 def test_missing_required_data(valid_config, field, data):
     config = valid_config
     config[field] = data
@@ -71,7 +74,7 @@ def test_sqlite_loader_required_missing_field_table(valid_config):
 def test_sqlite_loader_with_valid_table_name(valid_config):
     config = valid_config
     config['loader'] = 'sqlite'
-    config['table'] = 'table'
+    config['destination']['table'] = 'table'
 
     validate_config(config)
 
@@ -80,7 +83,7 @@ def test_sqlite_loader_with_valid_table_name(valid_config):
 def test_sqlite_loader_with_invalid_table_name(valid_config, data):
     config = valid_config
     config['loader'] = 'sqlite'
-    config['table'] = data
+    config['destination']['table'] = data
 
     with pytest.raises(ValueError, match='string'):
         validate_config(config)
@@ -105,4 +108,36 @@ def test_invalid_remove_duplicate_field(valid_config, data):
     config['remove_duplicates'] = data
 
     with pytest.raises(ValueError, match='remove_duplicates'):
+        validate_config(config)
+
+@pytest.mark.parametrize('write_mode', ('append', 'overwrite', 'upsert'))
+def test_valid_write_mode_for_sql_loader(valid_config, write_mode):
+    config = valid_config
+    config['loader'] = 'sqlite'
+    config['destination']['table'] = 'tables'
+    config['write_mode'] = write_mode
+
+    validate_config(config)
+
+@pytest.mark.parametrize('write_mode', ('append', 'overwrite'))
+def test_valid_write_mode_for_file_loader(valid_config, write_mode):
+    config = valid_config
+    config['write_mode'] = write_mode
+
+    validate_config(config)
+
+def test_invalid_write_mode_for_sql_loader(valid_config):
+    config = valid_config
+    config['loader'] = 'sqlite'
+    config['destination']['table'] = 'tables'
+    config['write_mode'] = 'invalid_write_mode'
+
+    with pytest.raises(ValueError, match='write_mode has to be one'):
+        validate_config(config)
+
+def test_invalid_write_mode_for_file_loader(valid_config):
+    config = valid_config
+    config['write_mode'] = 'invalid_write_mode'
+
+    with pytest.raises(ValueError, match='write_mode has to be one'):
         validate_config(config)

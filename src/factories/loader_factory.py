@@ -6,7 +6,7 @@ LOADERS = {
     'sqlite': SQLiteLoader
 }
 
-def create_loader(loader_type):
+def create_loader(loader_type) -> object:
     loader = LOADERS.get(loader_type)
 
     if loader is None:

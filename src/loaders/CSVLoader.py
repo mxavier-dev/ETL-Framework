@@ -1,16 +1,30 @@
-from src.loaders.Loader import Loader
 import csv
+from pathlib import Path
+
+from src.loaders.Loader import Loader
 
 class CSVLoader(Loader):
-    def load(self, data:list, path:str, schema:dict):
-        if not data:
-            raise ValueError('The file has to be at least one valid data')
+    def load(self, data:list, destination, schema:dict, write_mode:str):
+        destination = destination['path']
 
-        path += 'data_transformed.csv' if path.endswith('/') else '/data_transformed.csv'
+        if not Path(destination).is_dir():
+            raise ValueError(
+                f'The path {destination} is not a directory'
+            )
 
-        keys = list(schema.keys())
+        match write_mode:
+            case 'overwrite':
+                write_mode = 'w+'
+            case 'append':
+                write_mode = 'a+'
 
-        with open(path, 'w', encoding='utf-8', newline='') as arq:
-            writer = csv.DictWriter(arq, fieldnames=keys)
-            writer.writeheader()
+        with open(
+            f'{destination}/transformed_data.csv', write_mode,
+            encoding='utf-8', newline=''
+        ) as f:
+            f.seek(0)
+            reader = csv.DictReader(f)
+            writer = csv.DictWriter(f, fieldnames=[*schema])
+            if list(reader) == []:
+                writer.writeheader()
             writer.writerows(data)

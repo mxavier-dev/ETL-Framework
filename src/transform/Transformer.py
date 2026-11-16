@@ -35,7 +35,7 @@ class Transformer:
                     transformed_line[field] = None
                     continue
 
-                if value_type in ["int", "float"]:
+                if value_type in ['int', 'float']:
                     if 'min' in config and value < config['min']:
                         transformed_line[field] = None
                     elif 'max' in config and value > config['max']:
